@@ -96,7 +96,7 @@ export default function Dashboard() {
       }
     };
 
-    window.addEventListener("focus", () => {
+    const handleFocus = () => {
       const loadedTasks = loadTasksFromStorage();
       setTasks(loadedTasks);
 
@@ -108,21 +108,44 @@ export default function Dashboard() {
           setShowCelebration(true);
         }
       }
-    });
+    };
 
+    window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
+      window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   // FIXED: Detect when timer completes - sessionActive becomes FALSE when timer ends
+  const completeTask = useCallback(() => {
+    setTasks((prev) => {
+      const newTasks = prev.map((t, i) =>
+        i === currentTaskIndex ? { ...t, completed: true } : t
+      );
+
+      // Check if all tasks are completed
+      if (newTasks.every((t) => t.completed)) {
+        setShowCelebration(true);
+      } else {
+        // AUTO-START NEXT TASK: Reset timer and toggle it on
+        setTimeout(() => {
+          resetTimer();
+          toggleTimer(); // Start the timer for next task
+        }, 500); // Small delay for UX
+      }
+
+      return newTasks;
+    });
+  }, [currentTaskIndex, resetTimer, toggleTimer]);
+
   useEffect(() => {
     if (timeLeft === 0 && isRunning === false && sessionActive === false) {
       completeTask();
     }
-  }, [timeLeft, isRunning, sessionActive]);
+  }, [timeLeft, isRunning, sessionActive, completeTask]);
 
   const updateSleighPosition = useCallback((percent: number) => {
     const path = document.getElementById("journeyPath") as SVGPathElement | null;
@@ -160,28 +183,6 @@ export default function Dashboard() {
     const timeout = setTimeout(() => updateSleighPosition(journeyProgress), 50);
     return () => clearTimeout(timeout);
   }, [journeyProgress, updateSleighPosition]);
-
-  // FIXED: Auto-complete current task and start next task
-  const completeTask = useCallback(() => {
-    setTasks((prev) => {
-      const newTasks = prev.map((t, i) =>
-        i === currentTaskIndex ? { ...t, completed: true } : t
-      );
-
-      // Check if all tasks are completed
-      if (newTasks.every((t) => t.completed)) {
-        setShowCelebration(true);
-      } else {
-        // AUTO-START NEXT TASK: Reset timer and toggle it on
-        setTimeout(() => {
-          resetTimer();
-          toggleTimer(); // Start the timer for next task
-        }, 500); // Small delay for UX
-      }
-
-      return newTasks;
-    });
-  }, [currentTaskIndex, resetTimer, toggleTimer]);
 
   // Update currentTaskIndex whenever tasks change
   useEffect(() => {

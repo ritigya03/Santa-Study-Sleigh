@@ -14,7 +14,8 @@ export const useHandGesture = () => {
   const [isReady, setIsReady] = useState(false)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const handLandmarkerRef = useRef<HandLandmarker | null>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | null>(null)
+
   const lastHandXRef = useRef<number>(0.5)
 
   useEffect(() => {
