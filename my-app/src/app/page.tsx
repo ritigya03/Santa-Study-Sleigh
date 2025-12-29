@@ -117,7 +117,7 @@ export default function Home() {
             `}</style>
           </div>
 
-          <div className="animate-sleigh-vertical relative z-2 -mt-16 md:-mt-14">
+          <div className="animate-sleigh-vertical relative z-2 -mt-16 md:-mt-8">
             <Image
               src="/images/Santa-sleigh.png"
               alt="Santa's Sleigh"

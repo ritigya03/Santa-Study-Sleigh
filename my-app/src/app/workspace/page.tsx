@@ -9,7 +9,7 @@ const WORKSHOPS = [
   { id: "snow", title: "Snowy Night", icon: "❄️" },
   { id: "fireplace", title: "Fireplace", icon: "🔥" },
   { id: "rain", title: "Calm Window", icon: "🌧️" },
-  { id: "desk", title: "Minimal Desk", icon: "💼" },
+  { id: "night", title: "Night Focus", icon: "💼" },
   { id: "christmas", title: "Santa's Workshop", icon: "🎄" },
 ]
 
