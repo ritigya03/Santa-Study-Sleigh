@@ -44,10 +44,5 @@ To make productivity feel **calm, aesthetic, and rewarding** — not stressful.
 
 ---
 
-## 🎬 Demo
-
-🎥 Watch the demo to see the full journey from tasks to the final tree.
-
----
 
 **Productivity, but make it cozy.** 🌲✨
