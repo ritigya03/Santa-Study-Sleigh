@@ -1,84 +1,53 @@
-# Santa Study Sleigh
+# 🎄 Santa Study Sleigh
 
-A festive Pomodoro app to make study sessions feel like a holiday adventure.
+> **Study. Pack the gifts. Reach the tree.**
 
-## Project structure
-
-```
-src/
-│
-├── app/
-│   ├── layout.tsx              # Root layout (fonts, theme, music provider)
-│   ├── globals.css             # Tailwind + global styles
-│
-│   ├── page.tsx                # Landing page (intro / start button)
-│
-│   ├── dashboard/
-│   │   └── page.tsx            # Tasks + Start Pomodoro
-│
-│   ├── study/
-│   │   ├── theme-select/
-│   │   │   └── page.tsx        # Choose study environment (3 themes)
-│   │   │
-│   │   ├── session/
-│   │   │   └── page.tsx        # Pomodoro running (sleigh, timer, bg)
-│   │   │
-│   │   └── complete/
-│   │       └── page.tsx        # Session end (gift wrap, ornament)
-│
-│   ├── celebration/
-│   │   └── page.tsx            # Final tree + badges + praise letter
-│
-│   └── api/                    # (optional, later)
-│
-├── components/
-│   ├── ui/
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   └── Modal.tsx
-│
-│   ├── timer/
-│   │   ├── PomodoroTimer.tsx
-│   │   └── SleighPath.tsx
-│
-│   ├── tasks/
-│   │   └── TaskList.tsx
-│
-│   ├── tree/
-│   │   ├── ChristmasTree3D.tsx
-│   │   └── Ornament.tsx
-│
-│   ├── themes/
-│   │   ├── SnowTheme.tsx
-│   │   ├── CafeTheme.tsx
-│   │   └── NightTheme.tsx
-│
-│   ├── badges/
-│   │   └── BadgeCard.tsx
-│
-│   └── audio/
-│       ├── MusicToggle.tsx
-│       └── BellSound.tsx
-│
-├── lib/
-│   ├── constants.ts            # Pomodoro count, theme names, badge rules
-│   ├── utils.ts
-│
-├── context/
-│   ├── StudyContext.tsx        # sessions, tasks, themes, streaks
-│   └── ThemeContext.tsx        # selected study environment
-│
-├── public/
-│   ├── audio/
-│   ├── images/
-│   └── models/                 # 3D assets (tree, sleigh)
-```
-
-## Quick start
-
-1. Install dependencies: `npm install`
-2. Run dev server: `npm run dev`
+Santa Study Sleigh is a cozy, vibe-driven productivity app that romanticizes discipline.  
+Instead of cold to-do lists and rigid timers, it turns studying into a festive journey with calm aesthetics, soothing music, and a magical 3D reward.
 
 ---
 
-All components are initial placeholders — next steps: implement timer logic, 3D tree, audio, and polish UI.
+## ✨ What it does
+
+- Create study tasks as **gifts Santa needs to collect**
+- Each Pomodoro session moves Santa forward on a visual track
+- Study inside cozy, Christmas-themed workspaces with live backgrounds
+- Completing tasks **packs gifts visually**
+- Finish all tasks to unlock an **interactive 3D Christmas tree**
+- Control the tree using **real-time hand gestures**
+
+---
+
+## 🌟 Why it’s different
+
+Santa Study Sleigh focuses on **emotion, atmosphere, and motivation**.  
+It’s designed to make studying feel warm and comforting — like a quiet winter evening in a café.
+
+---
+
+## 🛠️ Built with
+
+- **Next.js**
+- **React + TypeScript**
+- **Three.js**
+- **@react-three/fiber & drei**
+- **MediaPipe Vision (hand gesture recognition)**
+- **Postprocessing (bloom & visual effects)**
+- **Tailwind CSS**
+- **Vite**
+
+---
+
+## 🎯 Goal
+
+To make productivity feel **calm, aesthetic, and rewarding** — not stressful.
+
+---
+
+## 🎬 Demo
+
+🎥 Watch the demo to see the full journey from tasks to the final tree.
+
+---
+
+**Productivity, but make it cozy.** 🌲✨
