@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 
-export const POMODORO_TIME = 25 * 60;
+export const POMODORO_TIME = 1 * 60;
 
 interface PomodoroContextType {
   timeLeft: number;

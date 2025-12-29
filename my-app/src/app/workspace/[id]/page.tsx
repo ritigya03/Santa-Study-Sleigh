@@ -8,7 +8,7 @@ const VIDEO_MAP: Record<string, string> = {
   snow: "/video/winter_snow.mp4",
   fireplace: "/video/fireplace.mp4",
   rain: "/video/rain.mp4",
-  desk: "/video/night.mp4",
+  night: "/video/night.mp4",
   christmas: "/video/christmas.mp4",
 }
 
