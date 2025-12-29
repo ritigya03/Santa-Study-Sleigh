@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import Button from "../../components/ui/Button";
 import { TimerDisplay } from "../../components/timer/TimerDisplay";
@@ -63,6 +63,12 @@ export default function Dashboard() {
   const [sleighPos, setSleighPos] = useState({ x: 50, y: 50 });
   const [sleighRotation, setSleighRotation] = useState(0);
 
+  // Track when final modal has been shown
+  const hasShownFinalModalRef = useRef(false);
+
+  // Track the last timer completion timestamp to prevent duplicate firings
+  const lastCompletionTimeRef = useRef<number>(0);
+
   const {
     timeLeft,
     isRunning,
@@ -89,8 +95,10 @@ export default function Dashboard() {
           const firstIncompleteIndex = loadedTasks.findIndex((t) => !t.completed);
           setCurrentTaskIndex(firstIncompleteIndex !== -1 ? firstIncompleteIndex : 0);
 
-          if (loadedTasks.every((t) => t.completed)) {
+          // Only show celebration if all tasks completed AND we haven't shown it yet
+          if (loadedTasks.every((t) => t.completed) && !hasShownFinalModalRef.current) {
             setShowCelebration(true);
+            hasShownFinalModalRef.current = true;
           }
         }
       }
@@ -104,8 +112,10 @@ export default function Dashboard() {
         const firstIncompleteIndex = loadedTasks.findIndex((t) => !t.completed);
         setCurrentTaskIndex(firstIncompleteIndex !== -1 ? firstIncompleteIndex : 0);
 
-        if (loadedTasks.every((t) => t.completed)) {
+        // Only show celebration if all tasks completed AND we haven't shown it yet
+        if (loadedTasks.every((t) => t.completed) && !hasShownFinalModalRef.current) {
           setShowCelebration(true);
+          hasShownFinalModalRef.current = true;
         }
       }
     };
@@ -119,30 +129,70 @@ export default function Dashboard() {
     };
   }, []);
 
-  // FIXED: Detect when timer completes - sessionActive becomes FALSE when timer ends
+  // SINGLE EXPLICIT COMPLETION: Only when timer finishes (timeLeft=0, not running, not active)
   const completeTask = useCallback(() => {
-    setTasks((prev) => {
-      const newTasks = prev.map((t, i) =>
+    // Prevent duplicate completions within 1 second
+    const now = Date.now();
+    if (now - lastCompletionTimeRef.current < 1000) {
+      console.log("⚠️ Completion too soon, debouncing");
+      return;
+    }
+    lastCompletionTimeRef.current = now;
+
+    setTasks((prevTasks) => {
+      const currentTask = prevTasks[currentTaskIndex];
+      
+      // Guard: Prevent duplicate completion of same task
+      if (!currentTask) {
+        console.log("⚠️ No current task found");
+        return prevTasks;
+      }
+
+      if (currentTask.completed) {
+        console.log("⚠️ Task already completed:", currentTask.text);
+        return prevTasks; // Don't update state
+      }
+
+      console.log("✅ Completing task:", currentTaskIndex, currentTask.text);
+
+      const newTasks = prevTasks.map((t, i) =>
         i === currentTaskIndex ? { ...t, completed: true } : t
       );
 
-      // Check if all tasks are completed
-      if (newTasks.every((t) => t.completed)) {
+      // Count completed tasks
+      const completedCount = newTasks.filter((t) => t.completed).length;
+      const totalTasks = newTasks.length;
+      
+      console.log(`📊 Completed: ${completedCount}/${totalTasks}`);
+      
+      // Only show final modal when ALL tasks are completed
+      if (completedCount === totalTasks && !hasShownFinalModalRef.current) {
+        // Show final celebration modal ONCE
+        console.log("🎉 ALL TASKS DONE - SHOWING FINAL MODAL");
         setShowCelebration(true);
-      } else {
-        // AUTO-START NEXT TASK: Reset timer and toggle it on
+        hasShownFinalModalRef.current = true;
+      } else if (completedCount < totalTasks) {
+        // Move to next incomplete task (but don't auto-start timer)
+        const nextIncompleteIndex = newTasks.findIndex((t) => !t.completed);
+        if (nextIncompleteIndex !== -1) {
+          console.log(`➡️ Moving to next task: ${nextIncompleteIndex}`);
+          setCurrentTaskIndex(nextIncompleteIndex);
+        }
+        // Reset timer but DON'T start it - user must manually press Start
         setTimeout(() => {
           resetTimer();
-          toggleTimer(); // Start the timer for next task
-        }, 500); // Small delay for UX
+        }, 300);
       }
 
       return newTasks;
     });
-  }, [currentTaskIndex, resetTimer, toggleTimer]);
+  }, [currentTaskIndex, resetTimer]); // ✅ Removed 'tasks' dependency!
 
+  // SINGLE TRIGGER: Watch for timer completion
   useEffect(() => {
-    if (timeLeft === 0 && isRunning === false && sessionActive === false) {
+    // Only complete when: timer finished (0), not running, session ended
+    if (timeLeft === 0 && !isRunning && !sessionActive) {
+      console.log("⏰ Timer finished! Attempting to complete task...");
       completeTask();
     }
   }, [timeLeft, isRunning, sessionActive, completeTask]);
@@ -184,15 +234,15 @@ export default function Dashboard() {
     return () => clearTimeout(timeout);
   }, [journeyProgress, updateSleighPosition]);
 
-  // Update currentTaskIndex whenever tasks change
+  // Initialize currentTaskIndex only on mount or when tasks are first loaded
   useEffect(() => {
-    if (tasks.length > 0) {
+    if (tasks.length > 0 && currentTaskIndex === 0) {
       const firstIncompleteIndex = tasks.findIndex((t) => !t.completed);
-      if (firstIncompleteIndex !== -1) {
+      if (firstIncompleteIndex !== -1 && firstIncompleteIndex !== currentTaskIndex) {
         setCurrentTaskIndex(firstIncompleteIndex);
       }
     }
-  }, [tasks]);
+  }, []); // ✅ Empty deps - only run once on mount
 
   const allTasksCompleted = tasks.length > 0 && tasks.every((t) => t.completed);
 
@@ -200,7 +250,7 @@ export default function Dashboard() {
     <main className="min-h-screen bg-[#3f0000] text-slate-100 overflow-hidden relative font-sans">
       <Snowfall />
 
-      {showCelebration && (
+      {showCelebration && allTasksCompleted && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -209,8 +259,25 @@ export default function Dashboard() {
           <motion.div
             initial={{ scale: 0.8, y: 20 }}
             animate={{ scale: 1, y: 0 }}
-            className="bg-linear-to-br from-blue-900/90 to-slate-900/90 border border-blue-400/30 p-12 rounded-[3rem] text-center max-w-md shadow-[0_0_50px_rgba(59,130,246,0.2)]"
+            className="bg-linear-to-br from-blue-900/90 to-slate-900/90 border border-blue-400/30 p-12 rounded-[3rem] text-center max-w-md shadow-[0_0_50px_rgba(59,130,246,0.2)] relative"
           >
+            <button
+              onClick={() => setShowCelebration(false)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all duration-200 group"
+              aria-label="Close"
+            >
+              <svg
+                className="w-5 h-5 text-white group-hover:scale-110 transition-transform"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
             <div className="text-8xl mb-6">🏆</div>
             <h2 className="text-4xl font-black text-white mb-4 italic">
               JOURNEY COMPLETE
@@ -218,26 +285,12 @@ export default function Dashboard() {
             <p className="text-blue-200/70 mb-8 leading-relaxed">
               All gifts have been delivered! Your productivity is as bright as the North Star.
             </p>
-            <div className="flex flex-col gap-3 w-full">
-              <Button
-                onClick={() => router.push("/celebration")}
-                className="w-full h-14 bg-yellow-500 text-black font-bold rounded-2xl hover:bg-yellow-400 italic"
-              >
-                🎁 FINAL DESTINATION REWARD
-              </Button>
-              <Button
-                onClick={() => {
-                  setTasks([]);
-                  setShowCelebration(false);
-                  setCurrentTaskIndex(0);
-                  resetTimer();
-                  localStorage.removeItem("santaTasks");
-                }}
-                className="w-full h-14 bg-white text-black font-bold rounded-2xl hover:bg-blue-50"
-              >
-                Start New Journey
-              </Button>
-            </div>
+            <Button
+              onClick={() => router.push("/celebration")}
+              className="w-full h-14 bg-yellow-500 text-black font-bold rounded-2xl hover:bg-yellow-400 italic"
+            >
+              🎁 FINAL DESTINATION REWARD
+            </Button>
           </motion.div>
         </motion.div>
       )}
