@@ -2,6 +2,7 @@
 
 > **Study. Pack the gifts. Reach the tree.**
 
+
 Santa Study Sleigh is a cozy, vibe-driven productivity app that romanticizes discipline.  
 Instead of cold to-do lists and rigid timers, it turns studying into a festive journey with calm aesthetics, soothing music, and a magical 3D reward.
 
@@ -44,5 +45,5 @@ To make productivity feel **calm, aesthetic, and rewarding** — not stressful.
 
 ---
 
-
+![Santa](./my-app/public/images/Santa-sleigh.png)
 **Productivity, but make it cozy.** 🌲✨
