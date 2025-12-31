@@ -45,4 +45,6 @@ To make productivity feel **calm, aesthetic, and rewarding** — not stressful.
 
 ---
 
-![Santa](./my-app/public/images/Santa-sleigh.png) Productivity, but make it cozy. 🌲✨
+![Santa](./my-app/public/images/Santa-sleigh.png) 
+
+Productivity, but make it cozy. 🌲✨
